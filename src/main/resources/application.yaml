@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/task-manager
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show_sql: true
+  main:
+    web-application-type: servlet
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: warn
+    web: info
+    com:
+      example: debug
