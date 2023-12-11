@@ -48,8 +48,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> getTasksByUserId(Long userId) {
-        return taskRepository.findTasksByUsersId(userId).stream()
-                .map(taskMapper::toDTO).toList();
+
+        if (userRepository.findById(userId).isPresent()) {
+            return taskRepository.findTasksByUsersId(userId).stream()
+                    .map(taskMapper::toDTO).toList();
+        } else throw new UserNotFoundException("There is no user with id: " + userId);
+
     }
 
     @Override

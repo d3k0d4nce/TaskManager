@@ -79,9 +79,15 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Page<CommentDTO> getFilteredAndPaginatedComments(Long taskId, String filter, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Comment> comments = commentRepository.findByTaskIdAndTextContaining(taskId, filter, pageable);
+        Page<Comment> comments;
+        if (filter != null && !filter.isEmpty()) {
+            comments = commentRepository.findByTaskIdAndTextContaining(taskId, filter, pageable);
+        } else {
+            comments = commentRepository.findByTaskId(taskId, pageable);
+        }
         return comments.map(commentMapper::toDTO);
     }
+
 
 
 }

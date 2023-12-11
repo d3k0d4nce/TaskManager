@@ -11,7 +11,6 @@ import ru.kishko.taskmanager.authservice.dtos.RegisterRequest;
 import ru.kishko.taskmanager.authservice.services.AuthenticationService;
 
 @RestController
-@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @CrossOrigin
 public class AuthController {

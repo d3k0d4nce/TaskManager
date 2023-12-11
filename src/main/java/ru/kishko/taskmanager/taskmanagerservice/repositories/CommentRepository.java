@@ -9,4 +9,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Page<Comment> findByTaskIdAndTextContaining(Long taskId, String filter, Pageable pageable);
 
+    Page<Comment> findByTaskId(Long taskId, Pageable pageable);
 }
