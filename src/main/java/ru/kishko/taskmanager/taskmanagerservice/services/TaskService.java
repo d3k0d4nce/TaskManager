@@ -22,4 +22,6 @@ public interface TaskService {
     TaskDTO setProducerToTask(Long taskId, Long userId);
 
     TaskDTO changeTaskStatusById(Long taskId, String status);
+
+    TaskDTO deleteProducerFromTask(Long taskId);
 }

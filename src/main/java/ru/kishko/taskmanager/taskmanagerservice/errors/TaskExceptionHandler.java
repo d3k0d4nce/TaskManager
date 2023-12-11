@@ -21,4 +21,16 @@ public class TaskExceptionHandler {
 
     }
 
+    @ExceptionHandler(value = {InvalidUserException.class})
+    public ResponseEntity<Object> handleInvalidUserException(InvalidUserException invalidUserException) {
+
+        TaskException taskException = new TaskException(
+                invalidUserException.getMessage(),
+                invalidUserException.getCause(),
+                HttpStatus.BAD_REQUEST
+        );
+
+        return new ResponseEntity<>(taskException, taskException.getHttpStatus());
+    }
+
 }

@@ -62,6 +62,12 @@ public class TaskController {
         return new ResponseEntity<>(taskService.setProducerToTask(taskId, userId), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{taskId}/delete-producer")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<TaskDTO> deleteProducerFromTask(@PathVariable("taskId") Long taskId) {
+        return new ResponseEntity<>(taskService.deleteProducerFromTask(taskId), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasRole('ROLE_PRODUCER')")
     @PutMapping("/change-status/{taskId}")
     public ResponseEntity<TaskDTO> changeStatusByTaskId(@PathVariable("taskId") Long taskId, @RequestParam("status") String status) {

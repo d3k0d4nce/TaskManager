@@ -13,6 +13,7 @@ import ru.kishko.taskmanager.taskmanagerservice.dtos.TaskDTO;
 import ru.kishko.taskmanager.taskmanagerservice.entites.Priority;
 import ru.kishko.taskmanager.taskmanagerservice.entites.Status;
 import ru.kishko.taskmanager.taskmanagerservice.entites.Task;
+import ru.kishko.taskmanager.taskmanagerservice.errors.InvalidUserException;
 import ru.kishko.taskmanager.taskmanagerservice.errors.TaskNotFoundException;
 import ru.kishko.taskmanager.taskmanagerservice.mappers.TaskMapper;
 import ru.kishko.taskmanager.taskmanagerservice.repositories.TaskRepository;
@@ -91,7 +92,7 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.save(taskMapper.toTask(taskDB));
 
-        }
+        } else throw new InvalidUserException("You're haven't access to this action");
 
         return taskDB;
     }
@@ -114,7 +115,28 @@ public class TaskServiceImpl implements TaskService {
 
             taskDB = addTaskUsers(taskId, userId);
 
-        }
+        } else throw new InvalidUserException("You're haven't access to this action");
+
+        return taskDB;
+    }
+
+    @Override
+    @Transactional
+    public TaskDTO deleteProducerFromTask(Long taskId) {
+
+        TaskDTO taskDB = getTaskById(taskId);
+
+        if (taskDB.getAuthorId().equals(getCurrentUser().getId())) {
+
+            if (taskDB.getProducerId() != null) {
+
+                taskDB = deleteTasksUser(taskId, taskDB.getProducerId());
+                taskDB.setProducerId(null);
+                taskRepository.save(taskMapper.toTask(taskDB));
+
+            }
+
+        } else throw new InvalidUserException("You're haven't access to this action");
 
         return taskDB;
     }
@@ -133,11 +155,11 @@ public class TaskServiceImpl implements TaskService {
                 taskDB.setStatus(status);
                 taskRepository.save(taskMapper.toTask(taskDB));
                 return taskDB;
-            }  // Обработка некорректного статуса
 
-        }
+            }  else throw new RuntimeException("Uncorrected status value");
 
-        return taskDB;
+        } else throw new InvalidUserException("You're haven't access to this action");
+
     }
 
     private User getCurrentUser() {
@@ -163,11 +185,30 @@ public class TaskServiceImpl implements TaskService {
 
         users.add(user);
 
-        System.out.println(users);
-
         taskRepository.save(taskMapper.toTask(taskDB));
 
-        System.out.println(taskDB.getUsers());
+        return taskDB;
+
+    }
+
+    @Transactional
+    private TaskDTO deleteTasksUser(Long taskId, Long userId) {
+
+        List<User> users;
+        TaskDTO taskDB = getTaskById(taskId);
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException("There is no user with id: " + userId)
+        );
+
+        if (taskDB.getUsers().isEmpty()) {
+            throw new RuntimeException("User with id: " + userId + " has an empty projectList.");
+        }
+
+        users = taskDB.getUsers();
+
+        users.remove(user);
+
+        taskRepository.save(taskMapper.toTask(taskDB));
 
         return taskDB;
 
@@ -191,7 +232,7 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.save(taskMapper.toTask(taskDB));
 
-        }
+        } else throw new InvalidUserException("You're haven't access to this action");
 
         return taskDB;
     }
@@ -207,9 +248,7 @@ public class TaskServiceImpl implements TaskService {
 
             return "successful deleted";
 
-        }
-
-        return "not deleted";
+        } else throw new InvalidUserException("You're haven't access to this action");
 
     }
 
