@@ -71,32 +71,30 @@ public class TaskServiceImpl implements TaskService {
 
         TaskDTO taskDB = getTaskById(taskId);
 
-        if (taskDB.getAuthorId().equals(getCurrentUser().getId())) {
+        checkUserAccess(taskDB.getAuthorId());
 
-            String name = taskDTO.getName();
-            String description = taskDTO.getDescription();
-            String status = taskDTO.getStatus();
-            String priority = taskDTO.getPriority();
+        String name = taskDTO.getName();
+        String description = taskDTO.getDescription();
+        String status = taskDTO.getStatus();
+        String priority = taskDTO.getPriority();
 
-            if (Objects.nonNull(name) && !"".equalsIgnoreCase(name)) {
-                taskDB.setName(name);
-            }
+        if (Objects.nonNull(name) && !"".equalsIgnoreCase(name)) {
+            taskDB.setName(name);
+        }
 
-            if (Objects.nonNull(description) && !"".equalsIgnoreCase(description)) {
-                taskDB.setDescription(description);
-            }
+        if (Objects.nonNull(description) && !"".equalsIgnoreCase(description)) {
+            taskDB.setDescription(description);
+        }
 
-            if (Objects.nonNull(status) && !"".equalsIgnoreCase(status) && Arrays.asList(Status.values()).contains(Status.valueOf(status))) {
-                taskDB.setStatus(status);
-            }
+        if (Objects.nonNull(status) && !"".equalsIgnoreCase(status) && Arrays.asList(Status.values()).contains(Status.valueOf(status))) {
+            taskDB.setStatus(status);
+        }
 
-            if (Objects.nonNull(priority) && !"".equalsIgnoreCase(priority) && Arrays.asList(Priority.values()).contains(Priority.valueOf(priority))) {
-                taskDB.setPriority(priority);
-            }
+        if (Objects.nonNull(priority) && !"".equalsIgnoreCase(priority) && Arrays.asList(Priority.values()).contains(Priority.valueOf(priority))) {
+            taskDB.setPriority(priority);
+        }
 
-            taskRepository.save(taskMapper.toTask(taskDB));
-
-        } else throw new InvalidUserException("You're haven't access to this action");
+        taskRepository.save(taskMapper.toTask(taskDB));
 
         return taskDB;
     }
@@ -107,19 +105,17 @@ public class TaskServiceImpl implements TaskService {
 
         TaskDTO taskDB = getTaskById(taskId);
 
-        if (taskDB.getAuthorId().equals(getCurrentUser().getId())) {
+        checkUserAccess(taskDB.getAuthorId());
 
-            if (userRepository.findById(userId).isEmpty()) {
-                throw new UserNotFoundException("There is no user with id: " + userId);
-            }
+        if (userRepository.findById(userId).isEmpty()) {
+            throw new UserNotFoundException("There is no user with id: " + userId);
+        }
 
-            taskDB.setProducerId(userId);
+        taskDB.setProducerId(userId);
 
-            taskRepository.save(taskMapper.toTask(taskDB));
+        taskRepository.save(taskMapper.toTask(taskDB));
 
-            taskDB = addTaskUsers(taskId, userId);
-
-        } else throw new InvalidUserException("You're haven't access to this action");
+        taskDB = addTaskUsers(taskId, userId);
 
         return taskDB;
     }
@@ -130,17 +126,15 @@ public class TaskServiceImpl implements TaskService {
 
         TaskDTO taskDB = getTaskById(taskId);
 
-        if (taskDB.getAuthorId().equals(getCurrentUser().getId())) {
+        checkUserAccess(taskDB.getAuthorId());
 
-            if (taskDB.getProducerId() != null) {
+        if (taskDB.getProducerId() != null) {
 
-                taskDB = deleteTasksUser(taskId, taskDB.getProducerId());
-                taskDB.setProducerId(null);
-                taskRepository.save(taskMapper.toTask(taskDB));
+            taskDB = deleteTasksUser(taskId, taskDB.getProducerId());
+            taskDB.setProducerId(null);
+            taskRepository.save(taskMapper.toTask(taskDB));
 
-            }
-
-        } else throw new InvalidUserException("You're haven't access to this action");
+        }
 
         return taskDB;
     }
@@ -151,18 +145,17 @@ public class TaskServiceImpl implements TaskService {
         TaskDTO taskDB = getTaskById(taskId);
 
         // Проверяем, принадлежит ли задача текущему пользователю
-        if (taskDB.getProducerId().equals(getCurrentUser().getId())) {
-            if (Objects.nonNull(status)
-                    && !"".equalsIgnoreCase(status)
-                    && Arrays.asList(Status.values()).contains(Status.valueOf(status))) {
 
-                taskDB.setStatus(status);
-                taskRepository.save(taskMapper.toTask(taskDB));
-                return taskDB;
+        checkUserAccess(taskDB.getProducerId());
+        if (Objects.nonNull(status)
+                && !"".equalsIgnoreCase(status)
+                && Arrays.asList(Status.values()).contains(Status.valueOf(status))) {
 
-            }  else throw new RuntimeException("Uncorrected status value");
+            taskDB.setStatus(status);
+            taskRepository.save(taskMapper.toTask(taskDB));
+            return taskDB;
 
-        } else throw new InvalidUserException("You're haven't access to this action");
+        } else throw new RuntimeException("Uncorrected status value");
 
     }
 
@@ -236,7 +229,7 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.save(taskMapper.toTask(taskDB));
 
-        } else throw new InvalidUserException("You're haven't access to this action");
+        } else throw new InvalidUserException("You're doesn't have access to this action");
 
         return taskDB;
     }
@@ -246,14 +239,18 @@ public class TaskServiceImpl implements TaskService {
 
         TaskDTO taskDB = getTaskById(taskId);
 
-        if (taskDB.getAuthorId().equals(getCurrentUser().getId())) {
+        checkUserAccess(taskDB.getAuthorId());
 
-            taskRepository.deleteById(taskId);
+        taskRepository.deleteById(taskId);
 
-            return "successful deleted";
+        return "successful deleted";
 
-        } else throw new InvalidUserException("You're haven't access to this action");
+    }
 
+    private void checkUserAccess(Long userId) {
+        if (!userId.equals(getCurrentUser().getId())) {
+            throw new InvalidUserException("You're doesn't have access to this action");
+        }
     }
 
 }
