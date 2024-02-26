@@ -229,7 +229,7 @@ public class TaskServiceImpl implements TaskService {
 
             taskRepository.save(taskMapper.toTask(taskDB));
 
-        } else throw new InvalidUserException("You're doesn't have access to this action");
+        } else throw new InvalidUserException("You don't have access to this action");
 
         return taskDB;
     }
@@ -249,7 +249,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void checkUserAccess(Long userId) {
         if (!userId.equals(getCurrentUser().getId())) {
-            throw new InvalidUserException("You're doesn't have access to this action");
+            throw new InvalidUserException("You don't have access to this action");
         }
     }
 
